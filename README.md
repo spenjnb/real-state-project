@@ -128,7 +128,7 @@ real-state-project/
 
 ## 🖼️ Project System Design
 
-![System Design Diagram](real state project.jpg)
+![System Design Diagram](systemdesign.jpg)
 
 ---
 
