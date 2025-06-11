@@ -139,6 +139,6 @@ real-state-project/
 
 ## 👤 Author
 
-*Spencer Navas (and contributors)*
+*Spencer Navas*
 
 ---
