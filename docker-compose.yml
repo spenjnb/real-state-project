@@ -1,0 +1,19 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: realestate
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+    ports: ["5432:5432"]
+
+  backend:
+    build: ./backend
+    env_file: ./backend/.env.development
+    ports: ["8000:8000"]
+    depends_on: ["db"]
+
+  frontend:
+    build: ./frontend
+    ports: ["3012:80"]
+    depends_on: ["backend"]

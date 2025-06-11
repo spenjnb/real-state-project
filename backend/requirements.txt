@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+sqlalchemy       # (if you’re using it)
+psycopg2-binary  # (for Postgres)
+python-dotenv    # (if you load .env files)

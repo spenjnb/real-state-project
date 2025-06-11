@@ -1,0 +1,17 @@
+# node / front-end
+node_modules/
+build/
+
+# Python / back-end
+__pycache__/
+*.py[cod]
+.env
+.env.*
+venv/
+
+# Docker
+.env.local
+docker-compose.override.yml
+
+# VSCode
+.vscode/
