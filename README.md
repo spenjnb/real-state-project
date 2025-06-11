@@ -122,12 +122,13 @@ real-state-project/
 
 ---
 
-## 🏆 Next Steps
+## 🗂️ Entity Relationship Diagram (ERD)
 
-* Implement core database models and CRUD endpoints
-* Connect frontend to backend APIs
-* Add analytics and visualizations for real estate trends
-* Prepare for cloud deployment (optional, future)
+![Entity Relationship Diagram](ERD.png)
+
+## 🖼️ Project System Design
+
+![System Design Diagram](real state project.jpg)
 
 ---
 
