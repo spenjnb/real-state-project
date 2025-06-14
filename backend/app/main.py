@@ -1,7 +1,30 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from .api import api_router
+from .database import engine
+from .models import Base
 
-app = FastAPI(title="Real Estate API")
+# Create database tables
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(
+    title="Real Estate Analytics API",
+    description="API for real estate market analysis and property management",
+    version="1.0.0"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In production, replace with specific origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include API routes
+app.include_router(api_router, prefix="/api")
 
 @app.get("/")
 def read_root():
-    return {"message": "Welcome to the Real Estate API"}
+    return {"message": "Welcome to Real Estate Analytics API"}
