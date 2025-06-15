@@ -9,22 +9,22 @@ router = APIRouter()
 
 @router.get("/", response_model=List[Renovation])
 def get_renovations(
-    skip: int = Query(0, ge=0),
-    limit: int = Query(10, ge=1, le=100),
+    skip: Optional[int] = Query(0, ge=0),
+    limit: Optional[int] = Query(10, ge=1, le=100),
     property_id: Optional[int] = None,
-    renovation_type: Optional[str] = None,
+    status: Optional[str] = None,
     db: Session = Depends(get_db)
 ):
     """
     Get a list of renovations with optional filtering.
     """
     query = db.query(RenovationModel)
-
+    
     if property_id:
         query = query.filter(RenovationModel.property_id == property_id)
-    if renovation_type:
-        query = query.filter(RenovationModel.renovation_type == renovation_type)
-
+    if status:
+        query = query.filter(RenovationModel.status == status)
+    
     return query.offset(skip).limit(limit).all()
 
 @router.post("/", response_model=Renovation)

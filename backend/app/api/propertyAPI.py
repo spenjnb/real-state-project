@@ -9,8 +9,8 @@ router = APIRouter()
 
 @router.get("/", response_model=List[Property])
 def get_properties(
-    skip: int = Query(0, ge=0),
-    limit: int = Query(10, ge=1, le=100),
+    skip: Optional[int] = Query(0, ge=0),
+    limit: Optional[int] = Query(10, ge=1, le=100),
     city: Optional[str] = None,
     property_type: Optional[str] = None,
     db: Session = Depends(get_db)

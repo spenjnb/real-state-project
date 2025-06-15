@@ -23,11 +23,12 @@ const SaleList = () => {
 
   const fetchSales = async () => {
     try {
-      const response = await client.get('/sales');
+      const response = await client.get('/api/sales/');
       setSales(response.data);
       setLoading(false);
     } catch (err) {
       setError('Error fetching sales');
+      console.error('Error details:', err.response?.data);
       setLoading(false);
     }
   };
@@ -43,7 +44,12 @@ const SaleList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await client.post('/sales', newSale);
+      const saleData = {
+        ...newSale,
+        property_id: parseInt(newSale.property_id),
+        sale_price: parseFloat(newSale.sale_price)
+      };
+      await client.post('/api/sales/', saleData);
       fetchSales();
       setNewSale({
         property_id: '',
@@ -58,6 +64,7 @@ const SaleList = () => {
       });
     } catch (err) {
       setError('Error adding sale');
+      console.error('Error details:', err.response?.data);
     }
   };
 
@@ -79,6 +86,8 @@ const SaleList = () => {
             value={newSale.property_id}
             onChange={handleInputChange}
             className="border p-2 rounded"
+            min="1"
+            step="1"
             required
           />
           <input
@@ -88,6 +97,8 @@ const SaleList = () => {
             value={newSale.sale_price}
             onChange={handleInputChange}
             className="border p-2 rounded"
+            min="0"
+            step="0.01"
             required
           />
           <input

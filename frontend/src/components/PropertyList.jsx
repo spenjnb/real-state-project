@@ -22,11 +22,12 @@ const PropertyList = () => {
 
   const fetchProperties = async () => {
     try {
-      const response = await client.get('/properties');
+      const response = await client.get('/api/properties/');
       setProperties(response.data);
       setLoading(false);
     } catch (err) {
       setError('Error fetching properties');
+      console.error('Error details:', err.response?.data);
       setLoading(false);
     }
   };
@@ -42,7 +43,13 @@ const PropertyList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await client.post('/properties', newProperty);
+      const propertyData = {
+        ...newProperty,
+        bedrooms: parseInt(newProperty.bedrooms),
+        bathrooms: parseFloat(newProperty.bathrooms),
+        square_feet: parseInt(newProperty.square_feet)
+      };
+      await client.post('/api/properties/', propertyData);
       fetchProperties();
       setNewProperty({
         address: '',
@@ -56,6 +63,7 @@ const PropertyList = () => {
       });
     } catch (err) {
       setError('Error adding property');
+      console.error('Error details:', err.response?.data);
     }
   };
 
@@ -122,6 +130,8 @@ const PropertyList = () => {
             value={newProperty.bedrooms}
             onChange={handleInputChange}
             className="border p-2 rounded"
+            min="0"
+            step="1"
             required
           />
           <input
@@ -131,6 +141,8 @@ const PropertyList = () => {
             value={newProperty.bathrooms}
             onChange={handleInputChange}
             className="border p-2 rounded"
+            min="0"
+            step="0.5"
             required
           />
           <input
@@ -140,6 +152,8 @@ const PropertyList = () => {
             value={newProperty.square_feet}
             onChange={handleInputChange}
             className="border p-2 rounded"
+            min="0"
+            step="1"
             required
           />
         </div>

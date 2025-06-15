@@ -10,8 +10,8 @@ router = APIRouter()
 
 @router.get("/", response_model=List[Sale])
 def get_sales(
-    skip: int = Query(0, ge=0),
-    limit: int = Query(10, ge=1, le=100),
+    skip: Optional[int] = Query(0, ge=0),
+    limit: Optional[int] = Query(10, ge=1, le=100),
     property_id: Optional[int] = None,
     sale_price: Optional[float] = None,
     sale_date: Optional[datetime] = None,

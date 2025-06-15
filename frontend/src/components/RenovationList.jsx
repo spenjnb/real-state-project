@@ -21,11 +21,12 @@ const RenovationList = () => {
 
   const fetchRenovations = async () => {
     try {
-      const response = await client.get('/renovations');
+      const response = await client.get('/api/renovations/');
       setRenovations(response.data);
       setLoading(false);
     } catch (err) {
       setError('Error fetching renovations');
+      console.error('Error details:', err.response?.data);
       setLoading(false);
     }
   };
@@ -41,7 +42,12 @@ const RenovationList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await client.post('/renovations', newRenovation);
+      const renovationData = {
+        ...newRenovation,
+        property_id: parseInt(newRenovation.property_id),
+        cost: parseFloat(newRenovation.cost)
+      };
+      await client.post('/api/renovations/', renovationData);
       fetchRenovations();
       setNewRenovation({
         property_id: '',
@@ -54,6 +60,7 @@ const RenovationList = () => {
       });
     } catch (err) {
       setError('Error adding renovation');
+      console.error('Error details:', err.response?.data);
     }
   };
 
@@ -75,6 +82,8 @@ const RenovationList = () => {
             value={newRenovation.property_id}
             onChange={handleInputChange}
             className="border p-2 rounded"
+            min="1"
+            step="1"
             required
           />
           <input
@@ -101,6 +110,8 @@ const RenovationList = () => {
             value={newRenovation.cost}
             onChange={handleInputChange}
             className="border p-2 rounded"
+            min="0"
+            step="0.01"
             required
           />
           <input

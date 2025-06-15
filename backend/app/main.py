@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import api_router
+from app.api import propertyAPI, saleAPI, renovationAPI
 from app.database import engine
 from app.models import Base
 
@@ -22,8 +22,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routes
-app.include_router(api_router, prefix="/api")
+# Include routers
+app.include_router(propertyAPI.router, prefix="/api/properties", tags=["properties"])
+app.include_router(saleAPI.router, prefix="/api/sales", tags=["sales"])
+app.include_router(renovationAPI.router, prefix="/api/renovations", tags=["renovations"])
 
 @app.get("/")
 def read_root():
