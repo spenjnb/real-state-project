@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .api import api_router
-from .database import engine
-from .models import Base
+from app.api import api_router
+from app.database import engine
+from app.models import Base
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -16,7 +16,7 @@ app = FastAPI(
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=["http://localhost:3012"],  # Frontend URL
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

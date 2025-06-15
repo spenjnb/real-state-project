@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from ..database import get_db
-from ..models.property import Property as PropertyModel
-from ..schemas.propertySchema import Property, PropertyCreate, PropertyUpdate
+from app.database import get_db
+from app.models.property import Property as PropertyModel
+from app.schemas.propertySchema import Property, PropertyCreate, PropertyUpdate
 
 router = APIRouter()
 

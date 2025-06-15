@@ -5,9 +5,11 @@ from datetime import datetime
 class RenovationBase(BaseModel):
     property_id: int
     renovation_type: str
-    cost: float
-    completion_date: datetime
     description: str
+    cost: float
+    start_date: datetime
+    end_date: datetime
+    status: str
 
 class RenovationCreate(RenovationBase):
     pass
@@ -15,9 +17,11 @@ class RenovationCreate(RenovationBase):
 class RenovationUpdate(BaseModel):
     property_id: Optional[int] = None
     renovation_type: Optional[str] = None
-    cost: Optional[float] = None
-    completion_date: Optional[datetime] = None
     description: Optional[str] = None
+    cost: Optional[float] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    status: Optional[str] = None
 
 class Renovation(RenovationBase):
     id: int

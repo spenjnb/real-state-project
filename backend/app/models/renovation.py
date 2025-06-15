@@ -1,21 +1,23 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from . import Base
+from app.database import Base
 
 class Renovation(Base):
     __tablename__ = "renovations"
 
     id = Column(Integer, primary_key=True, index=True)
-    property_id = Column(Integer, ForeignKey("properties.id"))
-    renovation_type = Column(String)  # e.g., "Kitchen", "Bathroom", "Roof"
-    cost = Column(Float)
-    completion_date = Column(DateTime)
+    property_id = Column(Integer, ForeignKey("properties.id"), index=True)
+    renovation_type = Column(String, index=True)
     description = Column(String)
+    cost = Column(Float)
+    start_date = Column(DateTime)
+    end_date = Column(DateTime)
+    status = Column(String, index=True)  # pending, in_progress, completed, cancelled
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
-    # Relationships
+    # Relationship
     property = relationship("Property", back_populates="renovations")
 
     def __repr__(self):

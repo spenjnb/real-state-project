@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from ..database import get_db
-from ..models.sale import Sale as SaleModel
-from ..schemas.saleSchema import Sale, SaleCreate, SaleUpdate
+from app.database import get_db
+from app.models.sale import Sale as SaleModel
+from app.schemas.saleSchema import Sale, SaleCreate, SaleUpdate
 from datetime import datetime
 
 router = APIRouter()

@@ -1,15 +1,21 @@
-from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from . import Base
+from app.database import Base
 
 class Sale(Base):
     __tablename__ = "sales"
 
     id = Column(Integer, primary_key=True, index=True)
-    property_id = Column(Integer, ForeignKey("properties.id"))
+    property_id = Column(Integer, ForeignKey("properties.id"), index=True)
     sale_price = Column(Float)
     sale_date = Column(DateTime)
+    buyer_name = Column(String)
+    buyer_email = Column(String)
+    buyer_phone = Column(String)
+    agent_name = Column(String)
+    agent_email = Column(String)
+    agent_phone = Column(String)
     days_on_market = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

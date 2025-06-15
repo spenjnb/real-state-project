@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from ..database import get_db
-from ..models.renovation import Renovation as RenovationModel
-from ..schemas.renovationSchema import Renovation, RenovationCreate, RenovationUpdate
+from app.database import get_db
+from app.models.renovation import Renovation as RenovationModel
+from app.schemas.renovationSchema import Renovation, RenovationCreate, RenovationUpdate
 
 router = APIRouter()
 
