@@ -1,0 +1,161 @@
+import React, { useState, useEffect } from 'react';
+import client from '../api/client';
+
+const RenovationList = () => {
+  const [renovations, setRenovations] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [newRenovation, setNewRenovation] = useState({
+    property_id: '',
+    renovation_type: '',
+    description: '',
+    cost: '',
+    start_date: '',
+    end_date: '',
+    status: 'pending'
+  });
+
+  useEffect(() => {
+    fetchRenovations();
+  }, []);
+
+  const fetchRenovations = async () => {
+    try {
+      const response = await client.get('/renovations');
+      setRenovations(response.data);
+      setLoading(false);
+    } catch (err) {
+      setError('Error fetching renovations');
+      setLoading(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewRenovation(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await client.post('/renovations', newRenovation);
+      fetchRenovations();
+      setNewRenovation({
+        property_id: '',
+        renovation_type: '',
+        description: '',
+        cost: '',
+        start_date: '',
+        end_date: '',
+        status: 'pending'
+      });
+    } catch (err) {
+      setError('Error adding renovation');
+    }
+  };
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>{error}</div>;
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Renovations</h1>
+      
+      {/* Add Renovation Form */}
+      <form onSubmit={handleSubmit} className="mb-8 p-4 border rounded">
+        <h2 className="text-xl font-semibold mb-4">Add New Renovation</h2>
+        <div className="grid grid-cols-2 gap-4">
+          <input
+            type="number"
+            name="property_id"
+            placeholder="Property ID"
+            value={newRenovation.property_id}
+            onChange={handleInputChange}
+            className="border p-2 rounded"
+            required
+          />
+          <input
+            type="text"
+            name="renovation_type"
+            placeholder="Renovation Type"
+            value={newRenovation.renovation_type}
+            onChange={handleInputChange}
+            className="border p-2 rounded"
+            required
+          />
+          <textarea
+            name="description"
+            placeholder="Description"
+            value={newRenovation.description}
+            onChange={handleInputChange}
+            className="border p-2 rounded col-span-2"
+            required
+          />
+          <input
+            type="number"
+            name="cost"
+            placeholder="Cost"
+            value={newRenovation.cost}
+            onChange={handleInputChange}
+            className="border p-2 rounded"
+            required
+          />
+          <input
+            type="date"
+            name="start_date"
+            value={newRenovation.start_date}
+            onChange={handleInputChange}
+            className="border p-2 rounded"
+            required
+          />
+          <input
+            type="date"
+            name="end_date"
+            value={newRenovation.end_date}
+            onChange={handleInputChange}
+            className="border p-2 rounded"
+            required
+          />
+          <select
+            name="status"
+            value={newRenovation.status}
+            onChange={handleInputChange}
+            className="border p-2 rounded col-span-2"
+            required
+          >
+            <option value="pending">Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <button
+          type="submit"
+          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+          Add Renovation
+        </button>
+      </form>
+
+      {/* Renovations List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {renovations.map(renovation => (
+          <div key={renovation.id} className="border rounded p-4">
+            <h3 className="font-semibold">Property ID: {renovation.property_id}</h3>
+            <p>Type: {renovation.renovation_type}</p>
+            <p>Description: {renovation.description}</p>
+            <p>Cost: ${renovation.cost}</p>
+            <p>Start Date: {new Date(renovation.start_date).toLocaleDateString()}</p>
+            <p>End Date: {new Date(renovation.end_date).toLocaleDateString()}</p>
+            <p>Status: {renovation.status}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default RenovationList; 

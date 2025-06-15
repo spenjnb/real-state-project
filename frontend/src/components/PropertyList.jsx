@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-
-const API_URL = 'http://localhost:8000/api';
+import client from '../api/client';
 
 const PropertyList = () => {
   const [properties, setProperties] = useState([]);
@@ -24,7 +22,7 @@ const PropertyList = () => {
 
   const fetchProperties = async () => {
     try {
-      const response = await axios.get(`${API_URL}/properties`);
+      const response = await client.get('/properties');
       setProperties(response.data);
       setLoading(false);
     } catch (err) {
@@ -44,7 +42,7 @@ const PropertyList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_URL}/properties`, newProperty);
+      await client.post('/properties', newProperty);
       fetchProperties();
       setNewProperty({
         address: '',
@@ -170,4 +168,4 @@ const PropertyList = () => {
   );
 };
 
-export default PropertyList; 
+export default PropertyList;

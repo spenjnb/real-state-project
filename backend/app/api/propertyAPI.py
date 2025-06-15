@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from ..database import get_db
 from ..models.property import Property as PropertyModel
-from ..schemas.property import Property, PropertyCreate, PropertyUpdate
+from ..schemas.propertySchema import Property, PropertyCreate, PropertyUpdate
 
 router = APIRouter()
 

@@ -15,9 +15,9 @@ real-state-project/
 └── README.md
 ```
 
-* **Frontend**: React app served by Nginx, built with Vite.
-* **Backend**: FastAPI REST API (Python), running on Uvicorn.
-* **Database**: PostgreSQL container.
+- **Frontend**: React app served by Nginx, built with Vite.
+- **Backend**: FastAPI REST API (Python), running on Uvicorn.
+- **Database**: PostgreSQL container.
 
 ---
 
@@ -36,9 +36,9 @@ real-state-project/
    docker-compose up --build
    ```
 
-   * **Frontend**: [http://localhost:3000](http://localhost:3000)
-   * **Backend API docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
-   * **Database**: accessible at `localhost:5432` (user: `user`, pass: `pass`, db: `realestate`)
+   - **Frontend**: [http://localhost:3012](http://localhost:3012)
+   - **Backend API docs**: [http://localhost:8000/docs](http://localhost:8000/docs)
+   - **Database**: accessible at `localhost:5432` (user: `user`, pass: `pass`, db: `realestate`)
 
 3. **To stop the services**
 
@@ -52,28 +52,28 @@ real-state-project/
 
 ### Backend (FastAPI)
 
-* Located in `/backend`
-* Main entry: `backend/app/main.py`
-* Key dependencies: FastAPI, Uvicorn, SQLAlchemy, psycopg2-binary
+- Located in `/backend`
+- Main entry: `backend/app/main.py`
+- Key dependencies: FastAPI, Uvicorn, SQLAlchemy, psycopg2-binary
 
 ### Frontend (React + Vite)
 
-* Located in `/frontend`
-* Main entry: `frontend/index.html` and `frontend/src/main.jsx`
-* Built and served by Nginx for production-like local development
+- Located in `/frontend`
+- Main entry: `frontend/index.html` and `frontend/src/main.jsx`
+- Built and served by Nginx for production-like local development
 
 ### Database (PostgreSQL)
 
-* Dockerized Postgres 15 container
-* Connection settings defined in `docker-compose.yml` and `.env` files
+- Dockerized Postgres 15 container
+- Connection settings defined in `docker-compose.yml` and `.env` files
 
 ---
 
 ## 🐳 Docker Compose Overview
 
-* **frontend**: Builds and serves the React app using Nginx.
-* **backend**: Runs the FastAPI app on Uvicorn.
-* **db**: Launches a Postgres database instance.
+- **frontend**: Builds and serves the React app using Nginx.
+- **backend**: Runs the FastAPI app on Uvicorn.
+- **db**: Launches a Postgres database instance.
 
 **All containers are networked and managed together for a seamless dev experience.**
 
@@ -81,13 +81,13 @@ real-state-project/
 
 ## ⚙️ Environment Variables
 
-* `backend/.env.development` (example)
+- `backend/.env.development` (example)
 
   ```
   DATABASE_URL=postgresql://user:pass@db:5432/realestate
   ```
 
-* `frontend/.env.local` (example)
+- `frontend/.env.local` (example)
 
   ```
   VITE_API_URL=http://localhost:8000
@@ -97,8 +97,8 @@ real-state-project/
 
 ## 📖 API Documentation
 
-* FastAPI auto-generates docs at [http://localhost:8000/docs](http://localhost:8000/docs).
-* Try the root endpoint:
+- FastAPI auto-generates docs at [http://localhost:8000/docs](http://localhost:8000/docs).
+- Try the root endpoint:
 
   ```
   GET /   ->   { "message": "Hello, Real Estate!" }
@@ -108,12 +108,13 @@ real-state-project/
 
 ## 🛠️ Useful Commands
 
-* **Rebuild images after changes:**
+- **Rebuild images after changes:**
 
   ```bash
   docker-compose build
   ```
-* **Run only backend or frontend:**
+
+- **Run only backend or frontend:**
 
   ```bash
   docker-compose up backend
@@ -140,6 +141,6 @@ real-state-project/
 
 ## 👤 Author
 
-*Spencer Navas*
+_Spencer Navas_
 
 ---
