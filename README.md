@@ -1,136 +1,150 @@
-# Real Estate Investment Analysis Platform
+# Real Estate Investment Portfolio Manager
 
-A comprehensive platform for analyzing real estate investments, tracking renovations, and managing property portfolios.
+A full-stack application for managing real estate investment portfolios, built with FastAPI, React, and PostgreSQL.
 
 ## Features
 
-- Property listing and management
-- Investment analysis tools
-- Renovation tracking
-- Sales history
-- Market analysis
-- Portfolio management
+- **Property Management**
+
+  - Add, edit, and delete properties
+  - Track property details (address, type, bedrooms, bathrooms, square footage)
+  - Monitor property values and purchase prices
+  - View property history and status
+
+- **Sales Analytics**
+
+  - Track property sales and ROI
+  - View market trends and average prices
+  - Analyze sales volume over time
+  - Property type distribution analysis
+
+- **Renovation Tracking**
+
+  - Record renovation projects and costs
+  - Track renovation status and progress
+  - Calculate renovation ROI
+  - Analyze renovation costs by property type
+
+- **Dashboard**
+  - Interactive charts and graphs
+  - Key performance metrics
+  - Market trend visualization
+  - Property portfolio overview
 
 ## Tech Stack
 
-- Backend: FastAPI, SQLAlchemy, PostgreSQL
-- Frontend: React, TypeScript, Tailwind CSS
-- Database: PostgreSQL
-- Authentication: JWT
+- **Backend**
+
+  - FastAPI (Python)
+  - SQLAlchemy (ORM)
+  - PostgreSQL (Database)
+  - Pydantic (Data validation)
+
+- **Frontend**
+  - React
+  - TypeScript
+  - Chart.js (Data visualization)
+  - Tailwind CSS (Styling)
 
 ## Prerequisites
 
 - Python 3.8+
 - Node.js 16+
 - PostgreSQL
-- Git
+- Docker and Docker Compose
 
-## Setup Instructions
+## Local Development Setup
 
-### Backend Setup
+1. **Clone the repository**
 
-1. Navigate to the backend directory:
+   ```bash
+   git clone <repository-url>
+   cd real-state-project
+   ```
 
-```bash
-cd backend
+2. **Backend Setup**
+
+   ```bash
+   cd backend
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+3. **Database Setup**
+
+   ```bash
+   # Start PostgreSQL using Docker
+   docker-compose up -d db
+
+   # Run database migrations
+   cd backend
+   alembic upgrade head
+   ```
+
+4. **Frontend Setup**
+
+   ```bash
+   cd frontend
+   npm install
+   ```
+
+5. **Environment Variables**
+   Create a `.env` file in the backend directory:
+
+   ```
+   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/real_estate
+   SECRET_KEY=your-secret-key
+   ```
+
+6. **Running the Application**
+
+   ```bash
+   # Terminal 1 - Backend
+   cd backend
+   uvicorn app.main:app --reload
+
+   # Terminal 2 - Frontend
+   cd frontend
+   npm run dev
+   ```
+
+   The application will be available at:
+
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:8000
+   - API Documentation: http://localhost:8000/docs
+
+## API Endpoints
+
+- `GET /api/properties` - List all properties
+- `POST /api/properties` - Create a new property
+- `GET /api/properties/{id}` - Get property details
+- `PUT /api/properties/{id}` - Update property
+- `DELETE /api/properties/{id}` - Delete property
+- `GET /api/analytics/sales` - Get sales analytics
+- `GET /api/analytics/renovations` - Get renovation analytics
+
+## Project Structure
+
 ```
-
-2. Create and activate a virtual environment:
-
-```bash
-# Windows
-python -m venv venv
-.\venv\Scripts\activate
-
-# Linux/Mac
-python -m venv venv
-source venv/bin/activate
+real-state-project/
+├── backend/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── services/
+│   ├── alembic/
+│   └── requirements.txt
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── api/
+│   │   └── types/
+│   └── package.json
+└── docker-compose.yml
 ```
-
-3. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-4. Set up the database:
-
-```bash
-# Create the database
-createdb real_estate_db
-
-# Run migrations
-alembic upgrade head
-
-# Seed the database
-python -m app.db.seed_cli seed
-```
-
-5. Start the backend server:
-
-```bash
-# Make sure you're in the backend directory
-python -m uvicorn app.main:app --reload
-```
-
-The API will be available at `http://127.0.0.1:8000`
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-
-```bash
-cd frontend
-```
-
-2. Install dependencies (choose one):
-
-```bash
-# Using npm
-npm install
-
-# OR using Yarn
-yarn
-```
-
-3. Start the development server (choose one):
-
-```bash
-# Using npm
-npm run dev
-
-# OR using Yarn
-yarn dev
-```
-
-The frontend will be available at `http://localhost:5173`
-
-## API Documentation
-
-Once the backend server is running, you can access:
-
-- Interactive API documentation: `http://127.0.0.1:8000/docs`
-- Alternative API documentation: `http://127.0.0.1:8000/redoc`
-
-## Testing the Integration
-
-1. Start the backend server first (from the `backend` directory)
-2. Start the frontend development server (from the `frontend` directory)
-3. Open your browser to `http://localhost:5173`
-4. The frontend should automatically connect to the backend API
-
-## Common Issues
-
-- If you get "Not Found" errors when accessing the API:
-
-  - Make sure you're running the server from the `backend` directory
-  - Verify the server is running on `http://127.0.0.1:8000`
-  - Check that the database is properly seeded
-
-- If the frontend can't connect to the backend:
-  - Ensure both servers are running
-  - Check that the backend is running on the correct port (8000)
-  - Verify there are no CORS issues in the browser console
 
 ## Contributing
 
