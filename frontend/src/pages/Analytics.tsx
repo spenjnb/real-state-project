@@ -1,4 +1,3 @@
-import React from 'react';
 import PropertyAnalytics from '../components/PropertyAnalytics';
 import SalesAnalytics from '../components/SalesAnalytics';
 import RenovationsAnalytics from '../components/RenovationsAnalytics';

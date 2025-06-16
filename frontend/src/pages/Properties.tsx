@@ -4,7 +4,6 @@ import { fetchProperties, fetchPropertyTypes, fetchCities } from '../api/propert
 import {
   Box,
   Container,
-  Grid,
   Card,
   CardContent,
   Typography,
