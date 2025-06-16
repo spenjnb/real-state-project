@@ -1,11 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
+import { AxiosError } from 'axios';
+
+interface Renovation {
+  id: number;
+  property_id: number;
+  renovation_type: string;
+  description: string;
+  cost: number;
+  start_date: string;
+  end_date: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+}
+
+interface NewRenovation {
+  property_id: string;
+  renovation_type: string;
+  description: string;
+  cost: string;
+  start_date: string;
+  end_date: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+}
 
 const RenovationList = () => {
-  const [renovations, setRenovations] = useState([]);
+  const [renovations, setRenovations] = useState<Renovation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [newRenovation, setNewRenovation] = useState({
+  const [error, setError] = useState<string | null>(null);
+  const [newRenovation, setNewRenovation] = useState<NewRenovation>({
     property_id: '',
     renovation_type: '',
     description: '',
@@ -21,17 +43,20 @@ const RenovationList = () => {
 
   const fetchRenovations = async () => {
     try {
-      const response = await client.get('/api/renovations/');
+      const response = await client.get<Renovation[]>('/api/renovations/');
       setRenovations(response.data);
       setLoading(false);
     } catch (err) {
+      const error = err as AxiosError;
       setError('Error fetching renovations');
-      console.error('Error details:', err.response?.data);
+      console.error('Error details:', error.response?.data);
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setNewRenovation(prev => ({
       ...prev,
@@ -39,7 +64,7 @@ const RenovationList = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const renovationData = {
@@ -47,7 +72,7 @@ const RenovationList = () => {
         property_id: parseInt(newRenovation.property_id),
         cost: parseFloat(newRenovation.cost)
       };
-      await client.post('/api/renovations/', renovationData);
+      await client.post<Renovation>('/api/renovations/', renovationData);
       fetchRenovations();
       setNewRenovation({
         property_id: '',
@@ -59,8 +84,9 @@ const RenovationList = () => {
         status: 'pending'
       });
     } catch (err) {
+      const error = err as AxiosError;
       setError('Error adding renovation');
-      console.error('Error details:', err.response?.data);
+      console.error('Error details:', error.response?.data);
     }
   };
 
@@ -70,7 +96,7 @@ const RenovationList = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Renovations</h1>
-      
+
       {/* Add Renovation Form */}
       <form onSubmit={handleSubmit} className="mb-8 p-4 border rounded">
         <h2 className="text-xl font-semibold mb-4">Add New Renovation</h2>

@@ -1,10 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
+import { AxiosError } from 'axios';
+
+interface PropertyTypeDistribution {
+  property_type: string;
+  count: number;
+}
+
+interface LocationDistribution {
+  city: string;
+  state: string;
+  count: number;
+}
+
+interface Analytics {
+  property_type_distribution: PropertyTypeDistribution[];
+  avg_bedrooms: number;
+  avg_bathrooms: number;
+  avg_square_feet: number;
+  min_square_feet: number;
+  max_square_feet: number;
+  location_distribution: LocationDistribution[];
+}
 
 const PropertyAnalytics = () => {
-  const [analytics, setAnalytics] = useState(null);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAnalytics();
@@ -12,11 +34,13 @@ const PropertyAnalytics = () => {
 
   const fetchAnalytics = async () => {
     try {
-      const response = await client.get('/properties/analytics');
+      const response = await client.get<Analytics>('/properties/analytics');
       setAnalytics(response.data);
       setLoading(false);
     } catch (err) {
+      const error = err as AxiosError;
       setError('Error fetching analytics');
+      console.error('Error details:', error.response?.data);
       setLoading(false);
     }
   };
@@ -28,7 +52,7 @@ const PropertyAnalytics = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Property Analytics</h1>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Property Type Distribution */}
         <div className="border rounded p-4">
@@ -94,4 +118,4 @@ const PropertyAnalytics = () => {
   );
 };
 
-export default PropertyAnalytics;
+export default PropertyAnalytics; 

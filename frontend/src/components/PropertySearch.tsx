@@ -1,6 +1,30 @@
 import React, { useState } from 'react';
 import client from '../api/client';
 
+interface SearchParams {
+  city: string;
+  state: string;
+  property_type: string;
+  min_bedrooms: string;
+  max_bedrooms: string;
+  min_bathrooms: string;
+  max_bathrooms: string;
+  min_square_feet: string;
+  max_square_feet: string;
+}
+
+interface Property {
+  id: number;
+  address: string;
+  city: string;
+  state: string;
+  zip_code: string;
+  property_type: string;
+  bedrooms: number;
+  bathrooms: number;
+  square_feet: number;
+}
+
 const PropertySearch = () => {
   const [searchParams, setSearchParams] = useState({
     city: '',
@@ -12,12 +36,13 @@ const PropertySearch = () => {
     max_bathrooms: '',
     min_square_feet: '',
     max_square_feet: '',
-  });
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  } as SearchParams);
 
-  const handleInputChange = (e) => {
+  const [results, setResults] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSearchParams(prev => ({
       ...prev,
@@ -25,7 +50,7 @@ const PropertySearch = () => {
     }));
   };
 
-  const handleSearch = async (e) => {
+  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
@@ -36,7 +61,7 @@ const PropertySearch = () => {
         Object.entries(searchParams).filter(([_, value]) => value !== '')
       );
 
-      const response = await client.get('/properties/search', { params });
+      const response = await client.get<Property[]>('/properties/search', { params });
       setResults(response.data);
     } catch (err) {
       setError('Error searching properties');
@@ -161,4 +186,4 @@ const PropertySearch = () => {
   );
 };
 
-export default PropertySearch;
+export default PropertySearch; 

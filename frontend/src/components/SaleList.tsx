@@ -1,11 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import client from '../api/client';
+import { AxiosError } from 'axios';
+
+interface Sale {
+  id: number;
+  property_id: number;
+  sale_price: number;
+  sale_date: string;
+  buyer_name: string;
+  buyer_email: string;
+  buyer_phone: string;
+  agent_name: string;
+  agent_email: string;
+  agent_phone: string;
+}
+
+interface NewSale {
+  property_id: string;
+  sale_price: string;
+  sale_date: string;
+  buyer_name: string;
+  buyer_email: string;
+  buyer_phone: string;
+  agent_name: string;
+  agent_email: string;
+  agent_phone: string;
+}
 
 const SaleList = () => {
-  const [sales, setSales] = useState([]);
+  const [sales, setSales] = useState<Sale[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [newSale, setNewSale] = useState({
+  const [error, setError] = useState<string | null>(null);
+  const [newSale, setNewSale] = useState<NewSale>({
     property_id: '',
     sale_price: '',
     sale_date: '',
@@ -23,17 +49,18 @@ const SaleList = () => {
 
   const fetchSales = async () => {
     try {
-      const response = await client.get('/api/sales/');
+      const response = await client.get<Sale[]>('/api/sales/');
       setSales(response.data);
       setLoading(false);
     } catch (err) {
+      const error = err as AxiosError;
       setError('Error fetching sales');
-      console.error('Error details:', err.response?.data);
+      console.error('Error details:', error.response?.data);
       setLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewSale(prev => ({
       ...prev,
@@ -41,7 +68,7 @@ const SaleList = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       const saleData = {
@@ -49,7 +76,7 @@ const SaleList = () => {
         property_id: parseInt(newSale.property_id),
         sale_price: parseFloat(newSale.sale_price)
       };
-      await client.post('/api/sales/', saleData);
+      await client.post<Sale>('/api/sales/', saleData);
       fetchSales();
       setNewSale({
         property_id: '',
@@ -63,8 +90,9 @@ const SaleList = () => {
         agent_phone: ''
       });
     } catch (err) {
+      const error = err as AxiosError;
       setError('Error adding sale');
-      console.error('Error details:', err.response?.data);
+      console.error('Error details:', error.response?.data);
     }
   };
 
@@ -74,7 +102,7 @@ const SaleList = () => {
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Sales</h1>
-      
+
       {/* Add Sale Form */}
       <form onSubmit={handleSubmit} className="mb-8 p-4 border rounded">
         <h2 className="text-xl font-semibold mb-4">Add New Sale</h2>
