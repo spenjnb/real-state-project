@@ -11,6 +11,8 @@ class PropertyBase(BaseModel):
     bedrooms: int
     bathrooms: float
     square_feet: int
+    current_value: float
+    purchase_price: float
     lot_size: Optional[float] = None
     year_built: Optional[int] = None
 
@@ -26,6 +28,8 @@ class PropertyUpdate(BaseModel):
     bedrooms: Optional[int] = None
     bathrooms: Optional[float] = None
     square_feet: Optional[int] = None
+    current_value: Optional[float] = None
+    purchase_price: Optional[float] = None
     lot_size: Optional[float] = None
     year_built: Optional[int] = None
 

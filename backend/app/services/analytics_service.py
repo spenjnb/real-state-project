@@ -1,14 +1,16 @@
 from sqlalchemy.orm import Session
-from sqlalchemy import func, desc
-from typing import List, Dict
+from sqlalchemy import func, desc, case, and_
+from typing import List, Dict, Any
 from datetime import datetime, timedelta
-from ..models import Property, Sale, Renovation
-from ..schemas.analytics import (
+from app.models.property import Property
+from app.models.sale import Sale
+from app.models.renovation import Renovation
+from app.schemas.analytics import (
     PropertyAnalytics,
     SaleAnalytics,
     RenovationAnalytics,
-    MarketTrends,
-    InvestmentMetrics
+    PropertyTypeDistribution,
+    MarketTrends
 )
 
 class AnalyticsService:
@@ -24,175 +26,156 @@ class AnalyticsService:
             func.avg(Property.current_value).label('avg_value')
         ).group_by(Property.property_type).all()
 
-        # Get location distribution
-        locations = self.db.query(
-            Property.city,
-            Property.state,
-            func.count(Property.id).label('count'),
-            func.avg(Property.current_value).label('avg_price'),
-            func.sum(Property.current_value).label('total_value')
-        ).group_by(Property.city, Property.state).all()
+        property_type_distribution = [
+            PropertyTypeDistribution(
+                property_type=pt.property_type,
+                count=pt.count,
+                total_value=float(pt.total_value or 0),
+                avg_value=float(pt.avg_value or 0)
+            )
+            for pt in property_types
+        ]
 
-        # Get property statistics
-        stats = self.db.query(
+        # Get average metrics
+        avg_metrics = self.db.query(
             func.avg(Property.bedrooms).label('avg_bedrooms'),
             func.avg(Property.bathrooms).label('avg_bathrooms'),
             func.avg(Property.square_feet).label('avg_square_feet'),
-            func.min(Property.square_feet).label('min_square_feet'),
-            func.max(Property.square_feet).label('max_square_feet'),
-            func.count(Property.id).label('total_properties'),
-            func.sum(Property.current_value).label('total_value'),
-            func.avg(Property.current_value).label('avg_property_value')
+            func.avg(Property.lot_size).label('avg_lot_size')
         ).first()
 
         return PropertyAnalytics(
-            property_type_distribution=[
-                {
-                    "property_type": pt.property_type,
-                    "count": pt.count,
-                    "total_value": float(pt.total_value),
-                    "avg_value": float(pt.avg_value)
-                }
-                for pt in property_types
-            ],
-            location_distribution=[
-                {
-                    "city": loc.city,
-                    "state": loc.state,
-                    "count": loc.count,
-                    "avg_price": float(loc.avg_price),
-                    "total_value": float(loc.total_value)
-                }
-                for loc in locations
-            ],
-            avg_bedrooms=float(stats.avg_bedrooms),
-            avg_bathrooms=float(stats.avg_bathrooms),
-            avg_square_feet=float(stats.avg_square_feet),
-            min_square_feet=float(stats.min_square_feet),
-            max_square_feet=float(stats.max_square_feet),
-            total_properties=stats.total_properties,
-            total_value=float(stats.total_value),
-            avg_property_value=float(stats.avg_property_value)
+            property_type_distribution=property_type_distribution,
+            avg_bedrooms=float(avg_metrics.avg_bedrooms or 0),
+            avg_bathrooms=float(avg_metrics.avg_bathrooms or 0),
+            avg_square_feet=float(avg_metrics.avg_square_feet or 0),
+            avg_lot_size=float(avg_metrics.avg_lot_size or 0)
         )
 
     def get_sale_analytics(self) -> SaleAnalytics:
-        # Get basic sale statistics
-        stats = self.db.query(
-            func.count(Sale.id).label('total_sales'),
-            func.sum(Sale.sale_price).label('total_revenue'),
+        # Get sale metrics
+        sale_metrics = self.db.query(
             func.avg(Sale.sale_price).label('avg_sale_price'),
-            func.min(Sale.sale_price).label('min_sale_price'),
-            func.max(Sale.sale_price).label('max_sale_price'),
-            func.avg(Sale.days_on_market).label('avg_days_on_market')
+            func.avg(Sale.days_on_market).label('avg_days_on_market'),
+            func.count(Sale.id).label('total_sales')
         ).first()
 
-        # Get sales by month
-        sales_by_month = self.db.query(
-            func.date_trunc('month', Sale.sale_date).label('month'),
-            func.count(Sale.id).label('count'),
-            func.sum(Sale.sale_price).label('total')
-        ).group_by('month').order_by('month').all()
+        # Get ROI by property type
+        roi_by_property_type = self._calculate_roi_by_property_type()
 
-        # Get sales by property type
-        sales_by_type = self.db.query(
-            Property.property_type,
-            func.count(Sale.id).label('count'),
-            func.sum(Sale.sale_price).label('total'),
-            func.avg(Sale.sale_price).label('avg_price')
-        ).join(Property).group_by(Property.property_type).all()
+        # Get market trends
+        market_trends = self._calculate_market_trends()
 
         return SaleAnalytics(
-            total_sales=stats.total_sales,
-            total_revenue=float(stats.total_revenue),
-            avg_sale_price=float(stats.avg_sale_price),
-            min_sale_price=float(stats.min_sale_price),
-            max_sale_price=float(stats.max_sale_price),
-            avg_days_on_market=float(stats.avg_days_on_market),
-            sales_by_month=[
-                {
-                    "month": month.strftime("%Y-%m"),
-                    "count": count,
-                    "total": float(total)
-                }
-                for month, count, total in sales_by_month
-            ],
-            sales_by_property_type=[
-                {
-                    "property_type": pt.property_type,
-                    "count": pt.count,
-                    "total": float(pt.total),
-                    "avg_price": float(pt.avg_price)
-                }
-                for pt in sales_by_type
-            ],
-            roi_by_property_type=self._calculate_roi_by_property_type()
+            avg_sale_price=float(sale_metrics.avg_sale_price or 0),
+            avg_days_on_market=float(sale_metrics.avg_days_on_market or 0),
+            total_sales=sale_metrics.total_sales or 0,
+            roi_by_property_type=roi_by_property_type,
+            market_trends=market_trends
         )
 
-    def _calculate_roi_by_property_type(self) -> List[Dict]:
-        # Calculate ROI for each property type
+    def get_renovation_analytics(self) -> RenovationAnalytics:
+        # Get renovation metrics
+        renovation_metrics = self.db.query(
+            func.avg(Renovation.cost).label('avg_cost'),
+            func.avg(Renovation.duration).label('avg_duration'),
+            func.count(Renovation.id).label('total_renovations')
+        ).first()
+
+        # Get cost by property type
+        cost_by_property_type = self.db.query(
+            Property.property_type,
+            func.sum(Renovation.cost).label('total_cost'),
+            func.avg(Renovation.cost).label('avg_cost')
+        ).join(Renovation).group_by(Property.property_type).all()
+
+        cost_by_property_type = [
+            {
+                "property_type": pt.property_type,
+                "total_cost": float(pt.total_cost or 0),
+                "avg_cost": float(pt.avg_cost or 0)
+            }
+            for pt in cost_by_property_type
+        ]
+
+        # Get ROI by renovation type
+        roi_by_renovation_type = self.db.query(
+            Renovation.renovation_type,
+            func.avg(
+                case(
+                    (and_(
+                        Property.purchase_price + Renovation.cost > 0,
+                        Property.current_value > 0
+                    ),
+                    (Property.current_value - Property.purchase_price - Renovation.cost) / 
+                    (Property.purchase_price + Renovation.cost) * 100),
+                    else_=0
+                )
+            ).label('avg_roi')
+        ).join(Property).group_by(Renovation.renovation_type).all()
+
+        roi_by_renovation_type = [
+            {
+                "renovation_type": rt.renovation_type,
+                "avg_roi": float(rt.avg_roi or 0)
+            }
+            for rt in roi_by_renovation_type
+        ]
+
+        return RenovationAnalytics(
+            avg_cost=float(renovation_metrics.avg_cost or 0),
+            avg_duration=float(renovation_metrics.avg_duration or 0),
+            total_renovations=renovation_metrics.total_renovations or 0,
+            cost_by_property_type=cost_by_property_type,
+            roi_by_renovation_type=roi_by_renovation_type
+        )
+
+    def _calculate_roi_by_property_type(self) -> List[Dict[str, Any]]:
         roi_data = self.db.query(
             Property.property_type,
             func.avg(
-                (Sale.sale_price - Property.purchase_price) / Property.purchase_price * 100
+                case(
+                    (and_(
+                        Property.purchase_price > 0,
+                        Sale.sale_price > 0
+                    ),
+                    (Sale.sale_price - Property.purchase_price) / 
+                    Property.purchase_price * 100),
+                    else_=0
+                )
             ).label('avg_roi')
         ).join(Sale).group_by(Property.property_type).all()
 
         return [
             {
                 "property_type": pt.property_type,
-                "avg_roi": float(pt.avg_roi)
+                "avg_roi": float(pt.avg_roi or 0)
             }
             for pt in roi_data
         ]
 
-    def get_renovation_analytics(self) -> RenovationAnalytics:
-        # Get basic renovation statistics
-        stats = self.db.query(
-            func.count(Renovation.id).label('total_renovations'),
-            func.sum(Renovation.cost).label('total_cost'),
-            func.avg(Renovation.cost).label('avg_cost'),
-            func.avg(Renovation.duration).label('avg_duration')
-        ).first()
+    def _calculate_market_trends(self) -> MarketTrends:
+        # Get sales data for the last 12 months
+        twelve_months_ago = datetime.utcnow() - timedelta(days=365)
+        monthly_sales = self.db.query(
+            func.date_trunc('month', Sale.sale_date).label('month'),
+            func.avg(Sale.sale_price).label('avg_price'),
+            func.count(Sale.id).label('sales_count')
+        ).filter(Sale.sale_date >= twelve_months_ago).group_by('month').order_by('month').all()
 
-        # Get renovations by type
-        renovations_by_type = self.db.query(
-            Renovation.renovation_type,
-            func.count(Renovation.id).label('count'),
-            func.sum(Renovation.cost).label('total_cost'),
-            func.avg(Renovation.cost).label('avg_cost')
-        ).group_by(Renovation.renovation_type).all()
-
-        return RenovationAnalytics(
-            total_renovations=stats.total_renovations,
-            total_cost=float(stats.total_cost),
-            avg_cost=float(stats.avg_cost),
-            avg_duration=float(stats.avg_duration),
-            renovations_by_type=[
+        return MarketTrends(
+            monthly_avg_prices=[
                 {
-                    "renovation_type": rt.renovation_type,
-                    "count": rt.count,
-                    "total_cost": float(rt.total_cost),
-                    "avg_cost": float(rt.avg_cost)
+                    "month": sale.month.strftime("%Y-%m"),
+                    "avg_price": float(sale.avg_price or 0)
                 }
-                for rt in renovations_by_type
+                for sale in monthly_sales
             ],
-            cost_by_property_type=self._calculate_renovation_cost_by_property_type(),
-            roi_by_renovation_type=self._calculate_renovation_roi()
-        )
-
-    def _calculate_renovation_cost_by_property_type(self) -> List[Dict]:
-        return self.db.query(
-            Property.property_type,
-            func.sum(Renovation.cost).label('total_cost'),
-            func.avg(Renovation.cost).label('avg_cost')
-        ).join(Renovation).group_by(Property.property_type).all()
-
-    def _calculate_renovation_roi(self) -> List[Dict]:
-        # Calculate ROI for each renovation type
-        return self.db.query(
-            Renovation.renovation_type,
-            func.avg(
-                (Property.current_value - Property.purchase_price - Renovation.cost) / 
-                (Property.purchase_price + Renovation.cost) * 100
-            ).label('avg_roi')
-        ).join(Property).group_by(Renovation.renovation_type).all() 
+            monthly_sales_volume=[
+                {
+                    "month": sale.month.strftime("%Y-%m"),
+                    "sales_count": sale.sales_count or 0
+                }
+                for sale in monthly_sales
+            ]
+        ) 

@@ -1,162 +1,184 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { Box, Typography, Grid, Paper, CircularProgress } from '@mui/material';
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import client from '../api/client';
+import type { Analytics } from '../types/analytics.d';
 import { AxiosError } from 'axios';
 
-interface RenovationsAnalytics {
-  total_renovations: number;
-  total_cost: number;
-  avg_cost: number;
-  renovation_type_distribution: {
-    renovation_type: string;
-    count: number;
-    avg_cost: number;
-  }[];
-  status_distribution: {
-    status: string;
-    count: number;
-  }[];
-  monthly_renovations: {
-    month: string;
-    count: number;
-    total_cost: number;
-  }[];
-  property_type_impact: {
-    property_type: string;
-    renovation_count: number;
-    avg_cost: number;
-    avg_value_increase: number;
-  }[];
-  top_contractors: {
-    contractor_name: string;
-    renovation_count: number;
-    total_cost: number;
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+interface ChartData {
+  labels: string[];
+  datasets: {
+    label: string;
+    data: number[];
+    backgroundColor: string;
+    borderColor: string;
+    borderWidth: number;
   }[];
 }
 
-const RenovationsAnalytics = () => {
-  const [analytics, setAnalytics] = useState<RenovationsAnalytics | null>(null);
+const RenovationsAnalytics: React.FC = () => {
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [costByPropertyTypeData, setCostByPropertyTypeData] = useState<ChartData | null>(null);
+  const [roiByRenovationTypeData, setRoiByRenovationTypeData] = useState<ChartData | null>(null);
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, []);
-
-  const fetchAnalytics = async () => {
+  const fetchData = async () => {
     try {
-      const response = await client.get<RenovationsAnalytics>('/api/renovations/analytics');
-      setAnalytics(response.data);
-      setLoading(false);
-    } catch (err) {
-      const error = err as AxiosError;
-      setError('Error fetching renovation analytics');
-      console.error('Error details:', error.response?.data);
+      setLoading(true);
+      const response = await client.get<Analytics>('/api/analytics/renovations');
+      const data = response.data;
+      setAnalytics(data);
+
+      // Check if we have data before setting up charts
+      if (data.cost_by_property_type?.length > 0) {
+        setCostByPropertyTypeData({
+          labels: data.cost_by_property_type.map((item: any) => item.property_type),
+          datasets: [{
+            label: 'Average Cost by Property Type',
+            data: data.cost_by_property_type.map((item: any) => item.avg_cost),
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+          }]
+        });
+      }
+
+      if (data.roi_by_renovation_type?.length > 0) {
+        setRoiByRenovationTypeData({
+          labels: data.roi_by_renovation_type.map((item: any) => item.renovation_type),
+          datasets: [{
+            label: 'Average ROI by Renovation Type',
+            data: data.roi_by_renovation_type.map((item: any) => item.avg_roi),
+            backgroundColor: 'rgba(75, 192, 192, 0.5)',
+            borderColor: 'rgba(75, 192, 192, 1)',
+            borderWidth: 1
+          }]
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching renovation analytics:', error);
+      setError('Failed to load renovation analytics data');
+    } finally {
       setLoading(false);
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-  if (!analytics) return <div>No analytics data available</div>;
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <Typography color="error">{error}</Typography>
+      </Box>
+    );
+  }
+
+  if (!analytics) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
+        <Typography>No data available</Typography>
+      </Box>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Renovation Analytics</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {/* Overview Cards */}
-        <div className="border rounded p-4">
-          <h2 className="text-xl font-semibold mb-2">Total Renovations</h2>
-          <p className="text-3xl font-bold">{analytics.total_renovations}</p>
-        </div>
-        <div className="border rounded p-4">
-          <h2 className="text-xl font-semibold mb-2">Total Cost</h2>
-          <p className="text-3xl font-bold">${analytics.total_cost.toLocaleString()}</p>
-        </div>
-        <div className="border rounded p-4">
-          <h2 className="text-xl font-semibold mb-2">Average Cost</h2>
-          <p className="text-3xl font-bold">${analytics.avg_cost.toLocaleString()}</p>
-        </div>
-
-        {/* Renovation Type Distribution */}
-        <div className="border rounded p-4 col-span-1 md:col-span-2">
-          <h2 className="text-xl font-semibold mb-2">Renovation Types</h2>
-          <div className="space-y-2">
-            {analytics.renovation_type_distribution.map(item => (
-              <div key={item.renovation_type} className="flex justify-between">
-                <span>{item.renovation_type}</span>
-                <div className="space-x-4">
-                  <span>{item.count} renovations</span>
-                  <span>${item.avg_cost.toLocaleString()} avg</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Status Distribution */}
-        <div className="border rounded p-4">
-          <h2 className="text-xl font-semibold mb-2">Status Distribution</h2>
-          <div className="space-y-2">
-            {analytics.status_distribution.map(item => (
-              <div key={item.status} className="flex justify-between">
-                <span>{item.status}</span>
-                <span>{item.count} renovations</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Monthly Renovations */}
-        <div className="border rounded p-4 col-span-1 md:col-span-2">
-          <h2 className="text-xl font-semibold mb-2">Monthly Renovations</h2>
-          <div className="space-y-2">
-            {analytics.monthly_renovations.map(item => (
-              <div key={item.month} className="flex justify-between">
-                <span>{item.month}</span>
-                <div className="space-x-4">
-                  <span>{item.count} renovations</span>
-                  <span>${item.total_cost.toLocaleString()}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Property Type Impact */}
-        <div className="border rounded p-4 col-span-1 md:col-span-2">
-          <h2 className="text-xl font-semibold mb-2">Property Type Impact</h2>
-          <div className="space-y-2">
-            {analytics.property_type_impact.map(item => (
-              <div key={item.property_type} className="flex justify-between">
-                <span>{item.property_type}</span>
-                <div className="space-x-4">
-                  <span>{item.renovation_count} renovations</span>
-                  <span>${item.avg_cost.toLocaleString()} avg cost</span>
-                  <span>${item.avg_value_increase.toLocaleString()} avg increase</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Top Contractors */}
-        <div className="border rounded p-4 col-span-1 md:col-span-2">
-          <h2 className="text-xl font-semibold mb-2">Top Contractors</h2>
-          <div className="space-y-2">
-            {analytics.top_contractors.map(contractor => (
-              <div key={contractor.contractor_name} className="flex justify-between">
-                <span>{contractor.contractor_name}</span>
-                <div className="space-x-4">
-                  <span>{contractor.renovation_count} renovations</span>
-                  <span>${contractor.total_cost.toLocaleString()}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+    <Box p={3}>
+      <Typography variant="h4" gutterBottom>
+        Renovation Analytics
+      </Typography>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 3 }}>
+        <Paper elevation={3} sx={{ p: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Average Cost by Property Type
+          </Typography>
+          {costByPropertyTypeData ? (
+            <Bar
+              data={costByPropertyTypeData}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top' as const,
+                  },
+                  title: {
+                    display: true,
+                    text: 'Average Renovation Cost by Property Type',
+                  },
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      callback: function (this: any, value: string | number) {
+                        if (typeof value === 'number') {
+                          return `$${value.toLocaleString()}`;
+                        }
+                        const num = Number(value);
+                        return isNaN(num) ? value : `$${num.toLocaleString()}`;
+                      },
+                    },
+                  },
+                },
+              }}
+            />
+          ) : (
+            <Typography>No cost data available</Typography>
+          )}
+        </Paper>
+        <Paper elevation={3} sx={{ p: 2 }}>
+          <Typography variant="h6" gutterBottom>
+            Average ROI by Renovation Type
+          </Typography>
+          {roiByRenovationTypeData ? (
+            <Bar
+              data={roiByRenovationTypeData}
+              options={{
+                responsive: true,
+                plugins: {
+                  legend: {
+                    position: 'top' as const,
+                  },
+                  title: {
+                    display: true,
+                    text: 'Average ROI by Renovation Type',
+                  },
+                },
+                scales: {
+                  y: {
+                    beginAtZero: true,
+                    ticks: {
+                      callback: function (this: any, value: string | number) {
+                        if (typeof value === 'number') {
+                          return `${value.toFixed(1)}%`;
+                        }
+                        const num = Number(value);
+                        return isNaN(num) ? value : `${num.toFixed(1)}%`;
+                      },
+                    },
+                  },
+                },
+              }}
+            />
+          ) : (
+            <Typography>No ROI data available</Typography>
+          )}
+        </Paper>
+      </Box>
+    </Box>
   );
 };
 

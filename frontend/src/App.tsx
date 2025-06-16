@@ -3,34 +3,16 @@ import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react
 import PropertyList from './components/PropertyList';
 import SaleList from './components/SaleList';
 import RenovationList from './components/RenovationList';
-import PropertyAnalytics from './components/PropertyAnalytics';
-import SalesAnalytics from './components/SalesAnalytics';
-import RenovationsAnalytics from './components/RenovationsAnalytics';
 import Home from './pages/Home';
 import About from './pages/About';
+import Analytics from './pages/Analytics';
 import Footer from './components/Footer';
 
 const Navigation = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
-  const analyticsRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
-  const isAnalyticsActive = (path: string) => location.pathname.startsWith(path);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (analyticsRef.current && !analyticsRef.current.contains(event.target as Node)) {
-        setIsAnalyticsOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -83,62 +65,15 @@ const Navigation = () => {
             >
               Renovations
             </Link>
-            <div className="relative" ref={analyticsRef}>
-              <button
-                onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
-                className={`text-sm font-medium transition-colors flex items-center space-x-1 ${isAnalyticsActive('/analytics') || isAnalyticsActive('/sales/analytics') || isAnalyticsActive('/renovations/analytics')
-                  ? 'text-blue-600'
-                  : 'text-gray-500 hover:text-gray-900'
-                  }`}
-              >
-                <span>Analytics</span>
-                <svg
-                  className={`w-4 h-4 transition-transform ${isAnalyticsOpen ? 'rotate-180' : ''
-                    }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </button>
-              {isAnalyticsOpen && (
-                <div className="absolute left-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border border-gray-100">
-                  <Link
-                    to="/analytics"
-                    className={`block px-4 py-2 text-sm ${isActive('/analytics')
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                  >
-                    Property Analytics
-                  </Link>
-                  <Link
-                    to="/sales/analytics"
-                    className={`block px-4 py-2 text-sm ${isActive('/sales/analytics')
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                  >
-                    Sales Analytics
-                  </Link>
-                  <Link
-                    to="/renovations/analytics"
-                    className={`block px-4 py-2 text-sm ${isActive('/renovations/analytics')
-                      ? 'text-blue-600 bg-blue-50'
-                      : 'text-gray-700 hover:bg-gray-50'
-                      }`}
-                  >
-                    Renovation Analytics
-                  </Link>
-                </div>
-              )}
-            </div>
+            <Link
+              to="/analytics"
+              className={`text-sm font-medium transition-colors ${isActive('/analytics')
+                ? 'text-blue-600'
+                : 'text-gray-500 hover:text-gray-900'
+                }`}
+            >
+              Analytics
+            </Link>
             <Link
               to="/about"
               className={`text-sm font-medium transition-colors ${isActive('/about')
@@ -211,45 +146,15 @@ const Navigation = () => {
               >
                 Renovations
               </Link>
-              <div className="px-4 py-2">
-                <button
-                  onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
-                  className="text-sm font-medium text-gray-700 hover:text-gray-900"
-                >
-                  Analytics
-                </button>
-                {isAnalyticsOpen && (
-                  <div className="mt-2 pl-4 space-y-2">
-                    <Link
-                      to="/analytics"
-                      className={`block text-sm ${isActive('/analytics')
-                        ? 'text-blue-600'
-                        : 'text-gray-700 hover:text-gray-900'
-                        }`}
-                    >
-                      Property Analytics
-                    </Link>
-                    <Link
-                      to="/sales/analytics"
-                      className={`block text-sm ${isActive('/sales/analytics')
-                        ? 'text-blue-600'
-                        : 'text-gray-700 hover:text-gray-900'
-                        }`}
-                    >
-                      Sales Analytics
-                    </Link>
-                    <Link
-                      to="/renovations/analytics"
-                      className={`block text-sm ${isActive('/renovations/analytics')
-                        ? 'text-blue-600'
-                        : 'text-gray-700 hover:text-gray-900'
-                        }`}
-                    >
-                      Renovation Analytics
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <Link
+                to="/analytics"
+                className={`px-4 py-2 text-sm font-medium ${isActive('/analytics')
+                  ? 'text-blue-600 bg-blue-50'
+                  : 'text-gray-700 hover:bg-gray-50'
+                  }`}
+              >
+                Analytics
+              </Link>
               <Link
                 to="/about"
                 className={`px-4 py-2 text-sm font-medium ${isActive('/about')
@@ -270,7 +175,7 @@ const Navigation = () => {
 const App = () => {
   return (
     <Router>
-      <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="min-h-screen flex flex-col">
         <Navigation />
         <main className="flex-grow">
           <Routes>
@@ -278,9 +183,7 @@ const App = () => {
             <Route path="/properties" element={<PropertyList />} />
             <Route path="/sales" element={<SaleList />} />
             <Route path="/renovations" element={<RenovationList />} />
-            <Route path="/analytics" element={<PropertyAnalytics />} />
-            <Route path="/sales/analytics" element={<SalesAnalytics />} />
-            <Route path="/renovations/analytics" element={<RenovationsAnalytics />} />
+            <Route path="/analytics" element={<Analytics />} />
             <Route path="/about" element={<About />} />
           </Routes>
         </main>

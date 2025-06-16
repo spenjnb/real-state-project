@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from datetime import datetime
+from datetime import datetime, timezone
 from app.database import Base
 
 class Renovation(Base):
@@ -13,9 +13,10 @@ class Renovation(Base):
     cost = Column(Float)
     start_date = Column(DateTime)
     end_date = Column(DateTime)
+    duration = Column(Integer)  
     status = Column(String, index=True)  # pending, in_progress, completed, cancelled
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=datetime.now(timezone.utc))
+    updated_at = Column(DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
     # Relationship
     property = relationship("Property", back_populates="renovations")

@@ -63,7 +63,7 @@ createdb real_estate_db
 alembic upgrade head
 
 # Seed the database
-python scripts/seed_database.py
+python -m app.db.seed_cli seed
 ```
 
 5. Start the backend server:

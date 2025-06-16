@@ -20,6 +20,7 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql://user:pass@db:5432/realestate
+      - DOCKER_ENV=true
     depends_on:
       - db
 

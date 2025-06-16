@@ -77,6 +77,8 @@ const PropertyList = () => {
         bedrooms: parseInt(newProperty.bedrooms, 10),
         bathrooms: parseFloat(newProperty.bathrooms),
         square_feet: parseInt(newProperty.square_feet, 10),
+        current_value: 0,
+        purchase_price: 0,
         lot_size: 0,
         year_built: 2024
       };
@@ -106,8 +108,8 @@ const PropertyList = () => {
     <div className="container mx-auto p-4 mb-16">
       <h1 className="text-2xl font-bold mb-4">Properties</h1>
 
-      {/* Add Property Form */}
-      <form onSubmit={handleSubmit} className="mb-8 p-4 border rounded">
+      {/* Add Property Button */}
+      <div className="mb-8 p-4 border rounded">
         <div className="flex justify-between items-center mb-6">
           <button
             onClick={() => setIsModalOpen(true)}
@@ -148,7 +150,7 @@ const PropertyList = () => {
                   <input type="text" name="state" placeholder="State" value={newProperty.state} onChange={handleInputChange} className="border p-2 rounded w-full" required />
                   <input type="text" name="zip_code" placeholder="ZIP Code" value={newProperty.zip_code} onChange={handleInputChange} className="border p-2 rounded w-full" required />
                   <input type="text" name="property_type" placeholder="Property Type" value={newProperty.property_type} onChange={handleInputChange} className="border p-2 rounded w-full" required />
-                  <input type="number" name="bedrooms" placeholder="Bedrooms" value={newProperty.bedrooms} onChange={handleInputChange} className="border p-2 rounded w-full" min="0" required />
+                  <input type="number" name="bedrooms" placeholder="Bedrooms" value={newProperty.bedrooms} onChange={handleInputChange} className="border p-2 rounded w-full" min="0" step="1" required />
                   <input type="number" name="bathrooms" placeholder="Bathrooms" value={newProperty.bathrooms} onChange={handleInputChange} className="border p-2 rounded w-full" min="0" step="0.5" required />
                   <input type="number" name="square_feet" placeholder="Square Feet" value={newProperty.square_feet} onChange={handleInputChange} className="border p-2 rounded w-full col-span-2" min="0" required />
                 </div>
@@ -164,7 +166,7 @@ const PropertyList = () => {
             </div>
           </div>
         )}
-      </form>
+      </div>
     </div>
   );
 };

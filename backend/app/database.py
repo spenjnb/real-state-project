@@ -6,10 +6,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Get database URL from environment variable or use Docker defaults
+# Get database URL from environment variable or use appropriate default based on environment
+is_docker = os.getenv("DOCKER_ENV", "false").lower() == "true"
+default_host = "db" if is_docker else "localhost"
 SQLALCHEMY_DATABASE_URL = os.getenv(
     "DATABASE_URL",
-    "postgresql://user:pass@localhost:5432/realestate"
+    f"postgresql://user:pass@{default_host}:5432/realestate"
 )
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
