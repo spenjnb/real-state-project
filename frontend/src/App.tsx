@@ -1,92 +1,102 @@
-import React, { useState, useEffect } from 'react';
-import type { ComponentType } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import PropertyList from './components/PropertyList';
 import SaleList from './components/SaleList';
 import RenovationList from './components/RenovationList';
-
-// Test component with obvious Tailwind styles
-const TestComponent = () => {
-  useEffect(() => {
-    console.log('TestComponent mounted');
-    // Log all applied styles
-    const element = document.querySelector('.test-component');
-    if (element) {
-      const styles = window.getComputedStyle(element);
-      console.log('Applied styles:', {
-        backgroundColor: styles.backgroundColor,
-        padding: styles.padding,
-        margin: styles.margin,
-        color: styles.color,
-      });
-    }
-  }, []);
-
-  return (
-    <div className="test-component bg-red-500 p-8 m-4 text-white rounded-lg shadow-lg">
-      <h2 className="text-2xl font-bold mb-4">Test Component</h2>
-      <p className="text-lg">If you can see this with red background and white text, Tailwind is working!</p>
-    </div>
-  );
-};
-
-type Tab = 'Properties' | 'Sales' | 'Renovations' | 'Test';
-
-const tabComponents: Record<Tab, ComponentType> = {
-  Properties: PropertyList,
-  Sales: SaleList,
-  Renovations: RenovationList,
-  Test: TestComponent,
-};
+import PropertyAnalytics from './components/PropertyAnalytics';
+import SalesAnalytics from './components/SalesAnalytics';
+import RenovationsAnalytics from './components/RenovationsAnalytics';
+import Home from './pages/Home';
+import About from './pages/About';
+import Footer from './components/Footer';
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState<Tab>('Test');
-
-  useEffect(() => {
-    console.log('App component mounted');
-    // Check if Tailwind is loaded
-    const styleSheets = Array.from(document.styleSheets);
-    const hasTailwind = styleSheets.some(sheet => {
-      try {
-        return sheet.href?.includes('tailwind') ||
-          Array.from(sheet.cssRules).some(rule =>
-            rule.cssText.includes('tailwind'));
-      } catch (e) {
-        return false;
-      }
-    });
-    console.log('Tailwind stylesheet detected:', hasTailwind);
-  }, []);
-
-  const ActiveComponent = tabComponents[activeTab];
-
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
-      <header className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-2xl font-bold text-gray-900">Real Estate Analytics</h1>
-            <nav className="hidden sm:flex sm:space-x-8">
-              {(Object.keys(tabComponents) as Tab[]).map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium transition-colors duration-200 ease-in-out ${activeTab === tab
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                    }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </nav>
+    <Router>
+      <div className="min-h-screen flex flex-col">
+        {/* Navigation */}
+        <nav className="bg-blue-600 text-white">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between h-16">
+              <div className="flex items-center space-x-8">
+                <Link to="/" className="text-xl font-bold">
+                  Real Estate Analytics
+                </Link>
+                <div className="hidden md:flex space-x-4">
+                  <Link to="/properties" className="hover:text-gray-200 transition-colors">
+                    Properties
+                  </Link>
+                  <Link to="/sales" className="hover:text-gray-200 transition-colors">
+                    Sales
+                  </Link>
+                  <Link to="/renovations" className="hover:text-gray-200 transition-colors">
+                    Renovations
+                  </Link>
+                  <div className="relative group">
+                    <button className="hover:text-gray-200 transition-colors flex items-center">
+                      Analytics
+                      <svg
+                        className="w-4 h-4 ml-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+                    <div className="absolute left-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out z-50">
+                      <Link
+                        to="/analytics"
+                        className="block px-4 py-2 hover:bg-gray-100 transition-colors"
+                      >
+                        Property Analytics
+                      </Link>
+                      <Link
+                        to="/sales/analytics"
+                        className="block px-4 py-2 hover:bg-gray-100 transition-colors"
+                      >
+                        Sales Analytics
+                      </Link>
+                      <Link
+                        to="/renovations/analytics"
+                        className="block px-4 py-2 hover:bg-gray-100 transition-colors"
+                      >
+                        Renovation Analytics
+                      </Link>
+                    </div>
+                  </div>
+                  <Link to="/about" className="hover:text-gray-200 transition-colors">
+                    About
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </header>
+        </nav>
 
-      <main className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
-        <ActiveComponent />
-      </main>
-    </div>
+        {/* Main Content */}
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/properties" element={<PropertyList />} />
+            <Route path="/sales" element={<SaleList />} />
+            <Route path="/renovations" element={<RenovationList />} />
+            <Route path="/analytics" element={<PropertyAnalytics />} />
+            <Route path="/sales/analytics" element={<SalesAnalytics />} />
+            <Route path="/renovations/analytics" element={<RenovationsAnalytics />} />
+            <Route path="/about" element={<About />} />
+          </Routes>
+        </main>
+
+        {/* Footer */}
+        <Footer />
+      </div>
+    </Router>
   );
 };
 
