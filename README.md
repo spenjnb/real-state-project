@@ -48,10 +48,10 @@ A full-stack application for managing real estate investment portfolios, built w
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.8+ (make sure Python is in your system PATH)
 - Node.js 16+
-- PostgreSQL
 - Docker and Docker Compose
+- Git
 
 ## Local Development Setup
 
@@ -66,54 +66,78 @@ A full-stack application for managing real estate investment portfolios, built w
 
    ```bash
    cd backend
+
+   # Create and activate virtual environment
    python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   # On Windows:
+   .\venv\Scripts\activate
+   # On Unix/MacOS:
+   source venv/bin/activate
+
+   # Install Python dependencies
    pip install -r requirements.txt
    ```
 
-3. **Database Setup**
+3. **Database and Backend Setup with Docker**
 
    ```bash
-   # Start PostgreSQL using Docker
+   # From the project root directory
    docker-compose up -d db
 
-   # Run database migrations
+   # Wait a few seconds for the database to initialize
+   # Then run migrations
    cd backend
    alembic upgrade head
+
+   # Start the backend server
+   uvicorn app.main:app --reload
    ```
 
 4. **Frontend Setup**
 
    ```bash
+   # In a new terminal, from the project root
    cd frontend
-   npm install
+
+   # Install dependencies
+   yarn install
+
+   # Start the development server
+   yarn dev
    ```
 
-5. **Environment Variables**
-   Create a `.env` file in the backend directory:
+The application will be available at:
 
-   ```
-   DATABASE_URL=postgresql://postgres:postgres@localhost:5432/real_estate
-   SECRET_KEY=your-secret-key
-   ```
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:8000
+- API Documentation: http://localhost:8000/docs
 
-6. **Running the Application**
+## Environment Variables
 
-   ```bash
-   # Terminal 1 - Backend
-   cd backend
-   uvicorn app.main:app --reload
+Create a `.env` file in the backend directory:
 
-   # Terminal 2 - Frontend
-   cd frontend
-   npm run dev
-   ```
+```
+DATABASE_URL=postgresql://user:pass@localhost:5432/realestate
+SECRET_KEY=your-secret-key
+```
 
-   The application will be available at:
+## Common Issues
 
-   - Frontend: http://localhost:5173
-   - Backend API: http://localhost:8000
-   - API Documentation: http://localhost:8000/docs
+1. **Database Connection Issues**
+
+   - Make sure Docker is running
+   - Verify the database container is up: `docker-compose ps`
+   - Check if the database is accessible: `docker-compose logs db`
+
+2. **Backend Issues**
+
+   - Ensure Python virtual environment is activated
+   - Verify all requirements are installed: `pip list`
+   - Check if the backend server is running: `curl http://localhost:8000/docs`
+
+3. **Frontend Issues**
+   - Make sure all dependencies are installed: `yarn list`
+   - Check if the frontend server is running: `curl http://localhost:5173`
 
 ## API Endpoints
 
