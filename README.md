@@ -200,8 +200,9 @@ real-state-project/
 ### Frontend (React + Vite)
 
 - Located in `/frontend`
-- Main entry: `frontend/index.html` and `frontend/src/main.jsx`
+- Main entry: `frontend/index.html` and `frontend/src/main.tsx`
 - Built and served by Nginx for production-like local development
+- **Now fully TypeScript: all new code should use `.tsx` or `.ts` extensions**
 
 ### Database (PostgreSQL)
 
@@ -285,3 +286,33 @@ real-state-project/
 _Spencer Navas_
 
 ---
+
+## UI/UX
+
+- Modern navigation bar with dropdown analytics menu
+- Responsive Home and About pages
+- Consistent, modern styling with Tailwind CSS
+- Analytics dashboards for sales and renovations
+
+## Key Frontend Components
+
+- **PropertyList**: Manage and display properties
+- **SaleList**: Manage and display sales
+- **RenovationList**: Manage and display renovations
+- **PropertyAnalytics, SalesAnalytics, RenovationsAnalytics**: Analytics dashboards
+- **Home, About, Footer**: Main site pages and layout
+
+## Frontend Testing
+
+- Unit and integration tests are written using Jest and React Testing Library.
+- To run tests:
+  ```bash
+  cd frontend
+  yarn jest
+  ```
+  or
+  ```bash
+  npx jest
+  ```
+- Test files are located in `frontend/src/components/__tests__/`.
+- For setup, see `frontend/src/setupTests.ts`.

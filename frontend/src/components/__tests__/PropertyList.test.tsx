@@ -6,6 +6,7 @@ import axios from 'axios';
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
 
+// Mock axios.create to return an object with the expected shape
 const mockClient = {
   get: jest.fn(),
   post: jest.fn(),
@@ -14,7 +15,7 @@ const mockClient = {
     response: { use: jest.fn() }
   }
 };
-(mockedAxios.create as jest.Mock).mockReturnValue(mockClient);
+(axios.create as jest.Mock).mockReturnValue(mockClient);
 
 describe('PropertyList', () => {
   const mockProperties = [
