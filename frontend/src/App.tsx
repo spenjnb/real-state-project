@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
 import PropertyList from './components/PropertyList';
 import SaleList from './components/SaleList';
@@ -14,9 +14,23 @@ const Navigation = () => {
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(false);
+  const analyticsRef = useRef<HTMLDivElement>(null);
 
   const isActive = (path: string) => location.pathname === path;
   const isAnalyticsActive = (path: string) => location.pathname.startsWith(path);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (analyticsRef.current && !analyticsRef.current.contains(event.target as Node)) {
+        setIsAnalyticsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
@@ -69,7 +83,7 @@ const Navigation = () => {
             >
               Renovations
             </Link>
-            <div className="relative">
+            <div className="relative" ref={analyticsRef}>
               <button
                 onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
                 className={`text-sm font-medium transition-colors flex items-center space-x-1 ${isAnalyticsActive('/analytics') || isAnalyticsActive('/sales/analytics') || isAnalyticsActive('/renovations/analytics')

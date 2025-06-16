@@ -103,7 +103,7 @@ const PropertyList = () => {
   if (error) return <div className="text-red-500 text-center p-4">{error}</div>;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mb-16">
       <h1 className="text-2xl font-bold mb-4">Properties</h1>
 
       {/* Add Property Form */}

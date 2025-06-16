@@ -100,7 +100,7 @@ const SaleList = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 mb-16">
       <h1 className="text-2xl font-bold mb-4">Sales</h1>
 
       {/* Add Sale Form */}
