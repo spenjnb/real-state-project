@@ -12,7 +12,7 @@ import {
   PointElement,
   LineElement,
 } from 'chart.js';
-import { Bar, Line } from 'react-chartjs-2';
+import { Bar, Chart } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -171,7 +171,7 @@ const SalesAnalytics = () => {
         <div className="border rounded p-4 bg-white shadow col-span-2">
           <h2 className="text-xl font-semibold mb-4">Market Trends</h2>
           <div className="h-80">
-            <Line data={marketTrendsData} options={{
+            <Chart type="line" data={marketTrendsData} options={{
               responsive: true,
               maintainAspectRatio: false,
               interaction: {
@@ -189,7 +189,6 @@ const SalesAnalytics = () => {
                   },
                   ticks: {
                     callback(this, value: string | number) {
-                      // If value is a string, try to parse it, or just return it
                       if (typeof value === 'number') {
                         return `$${value.toLocaleString()}`;
                       }
